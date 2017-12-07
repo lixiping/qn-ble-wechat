@@ -46,6 +46,12 @@ class decoder {
     if (!advertisArrayData || advertisDataString.length == 0) {
       return
     }
+    const hasScreenOn = advertisArrayData[5] == 0
+    if(!hasScreenOn){
+      //过滤没有开机的设备
+      return
+    }
+
     let mac = ""
     const lastIndex = advertisArrayData.length - 1
     for (let i = lastIndex; i > lastIndex - 6; i--) {
@@ -65,7 +71,7 @@ class decoder {
 
   onDeviceConnectStateChange({ deviceId, connected }) {
     if (connected) {
-
+      //暂时不做处理
     } else {
       this.wx.closeBLEConnection({ deviceId })
     }
