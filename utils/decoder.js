@@ -66,7 +66,7 @@ class decoder {
       mac += s
     }
 
-    this.listener.onScanDevice({ mac, advertisDataString, ...device })
+    this.listener.onScanDevice({ mac, advertisDataString, ...device, localName: device.name, manufacturer: advertisDataString})
   }
 
   onDeviceConnectStateChange({ deviceId, connected }) {
@@ -218,15 +218,18 @@ class decoder {
 
   fetchMeasure(scaleString) {
     const { height, gender, age } = this.bodyParams
-    const bodyString = JSON.stringify(this.bodyParams)
-    const toSignString = APP_ID + scaleString + bodyString + SECRET
+    const bodyParamsObject = { Body_Height: height.toString(), User_Age: age.toString(), User_Gender: gender.toString() };
+    const bodyParamString = JSON.stringify(bodyParamsObject)
+    const toSignString = APP_ID + scaleString + bodyParamString + SECRET
     const sign = hexMD5(toSignString)
-    const bodyParamString = JSON.stringify({ Body_Height: height.toString(), User_Age: age.toString(), User_Gender: gender.toString() })
+    
     const paramData = {
       app_id: APP_ID,
       body_param: bodyParamString,
       scale: scaleString,
       sign_type: "MD5",
+      localName: this.device.localName,
+      manufacturer: this.device.manufacturer,
       sign,
     }
     console.log('发送的参数为',paramData)
