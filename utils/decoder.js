@@ -47,7 +47,7 @@ class decoder {
       return
     }
     const hasScreenOn = advertisArrayData[5] == 0
-    if(!hasScreenOn){
+    if (!hasScreenOn) {
       //过滤没有开机的设备
       return
     }
@@ -66,7 +66,7 @@ class decoder {
       mac += s
     }
 
-    this.listener.onScanDevice({ mac, advertisDataString, ...device, localName: device.name, manufacturer: advertisDataString})
+    this.listener.onScanDevice({ mac, advertisDataString, ...device, localName: device.name, manufacturer: advertisDataString })
   }
 
   onDeviceConnectStateChange({ deviceId, connected }) {
@@ -187,7 +187,7 @@ class decoder {
         if (data[5] == 0) {
           console.log("收到不稳定数据")
         } else if (data[5] == 1) {
-          console.log("收到稳定数据",this.cmdString)
+          console.log("收到稳定数据", this.cmdString)
           const sendCmd = this.buildCmd(0x1f, scaleType, 0x10);
 
           this.writeData(sendCmd)
@@ -220,9 +220,10 @@ class decoder {
     const { height, gender, age } = this.bodyParams
     const bodyParamsObject = { Body_Height: height.toString(), User_Age: age.toString(), User_Gender: gender.toString() };
     const bodyParamString = JSON.stringify(bodyParamsObject)
-    const toSignString = APP_ID + scaleString + bodyParamString + SECRET
+    const timestamp = parseInt(new Date().getTime() / 1000);
+    const toSignString = APP_ID + scaleString + bodyParamString + timestamp + SECRET
     const sign = hexMD5(toSignString)
-    
+
     const paramData = {
       app_id: APP_ID,
       body_param: bodyParamString,
@@ -231,8 +232,10 @@ class decoder {
       localName: this.device.localName,
       manufacturer: this.device.manufacturer,
       sign,
+      timestamp,
+      app_type: "qn",
     }
-    console.log('发送的参数为',paramData)
+    console.log('发送的参数为', paramData)
     this.wx.request({
       url: 'http://open.yolanda.hk/open_api/calcs/qn.json',
       method: "POST",
